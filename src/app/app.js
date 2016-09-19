@@ -9,7 +9,6 @@ import {
     Platform
 } from 'react-native';
 
-import Intro from '../intro/intro';
 
 import Tab from '../tab/tab'
 

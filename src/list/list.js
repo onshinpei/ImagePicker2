@@ -8,23 +8,32 @@ import {
     StatusBar,
     ListView,
     Image,
-    Dimensions
+    Dimensions,
+    ActivityIndicator,
+    RefreshControl
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import request from '../common/request';
 import config from '../common/config';
 
-const width = Dimensions.get('window').width;
-export default class List extends Component {
-    constructor() {
-        super();
-        const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
-        this.state = {
-            dataSource: ds.cloneWithRows([]),
-        };
-    }
+var cachedResults = {
+    nextPage: 1,
+    items: [],
+    total: 0
+}
 
-    renderRow(row) {
+const width = Dimensions.get('window').width;
+
+
+class Item extends Component {
+    constructor(props) {
+        super(props)
+        this.state = {
+            row : props.row
+        }
+    }
+    render() {
+        var row = this.state.row;
         return (
             <TouchableHighlight>
                 <View style={styles.item}>
@@ -51,27 +60,136 @@ export default class List extends Component {
             </TouchableHighlight>
         )
     }
+}
 
-    componentDidMount() {
-        this._fetchData();
+
+
+export default class List extends Component {
+    constructor(props) {
+        super(props);
+        const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+        this.state = {
+            dataSource: ds.cloneWithRows([]),
+            isLoadingTail: false,
+            isRefreshing: false
+        };
     }
 
-    _fetchData() {
-        request.get(config.api.base + config.api.creations,{
+    renderRow(row) {
+        return <Item row = {row}/>
+    }
 
+    componentDidMount() {
+        this._fetchData(1);
+    }
+
+    _hasMore() {
+        return cachedResults.items.length != cachedResults.total
+    }
+    _fetchData(page) {
+        var _this = this;
+
+        if(page == 0) {
+            this.setState({
+                isRefreshing: true
+            })
+        }else{
+            this.setState({
+                isLoadingTail: true
+            })
+        }
+
+
+        request.get(config.api.base + config.api.creations,{
+            accessToken: 'abc',
+            page: page
         })
             .then((data) => {
-                this.setState({
-                    dataSource: this.state.dataSource.cloneWithRows(data.data)
-                })
+
+                setTimeout(function() {
+                    if(data.success) {
+                        var items = cachedResults.items;
+                        if(page == 0) {
+                            items = data.data
+                        }else{
+                            items = items.concat(data.data);
+                            cachedResults.nextPage += 1;
+                        }
+                        cachedResults.items = items;
+                        cachedResults.total = data.total;
+                        if(page == 0) {
+                            _this.setState({
+                                isRefreshing: false,
+                                dataSource: _this.state.dataSource.cloneWithRows([]) //解决无法刷新
+                            })
+                            _this.setState({
+                                dataSource: _this.state.dataSource.cloneWithRows(cachedResults.items)
+                            })
+                        }else{
+                            _this.setState({
+                                isLoadingTail: false,
+                                dataSource: _this.state.dataSource.cloneWithRows(cachedResults.items)
+                            })
+                        }
+                    }
+
+                },1000)
+
             })
             .catch((error) => {
+                if(page == 0) {
+                    this.setState({
+                        isRefreshing: false
+                    })
+                }else{
+                    this.setState({
+                        isLoadingTail: false
+                    })
+                }
                 console.error(error);
             });
     }
 
 
+    _fetchMoreData() {
+        if(!this._hasMore()|| this.state.isLoadingTail) {
+            return;
+        }
+        var page = cachedResults.nextPage;
+        this._fetchData(page);
+
+
+    }
+
+    _onRefresh() {
+        if(this.state.isRefreshing) {
+            return;
+        }
+
+        this._fetchData(0);
+
+
+
+    }
+    _renderFooter() {
+        if(!this._hasMore() && cachedResults.total!=0) {
+            return(
+                <View style={styles.loadingMore}>
+                    <Text style={styles.loadingText}>没有更多了</Text>
+                </View>
+            )
+        }
+        if(!this.state.isLoadingTail) {
+            return(
+                <View style={styles.loadingMore}></View>
+            )
+        }
+        return <ActivityIndicator style={styles.loadingMore} size="large"
+        />
+    }
+
     render() {
+
         return (
             <View style={styles.container}>
                 <View style={styles.header}>
@@ -81,6 +199,18 @@ export default class List extends Component {
                     dataSource={this.state.dataSource}
                     enableEmptySections={true}
                     renderRow={this.renderRow.bind(this)}
+                    onEndReached = {this._fetchMoreData.bind(this)}
+                    onEndReachedThreshold = {20}
+                    renderFooter = {this._renderFooter.bind(this)}
+                    refreshControl = {
+                        <RefreshControl
+                            refreshing = {this.state.isRefreshing}
+                            colors = {['red', 'blue']}
+                            onRefresh = {this._onRefresh.bind(this)}
+                            tintColor='#ff6600'
+                            title='拼命加载中'
+                         />
+                    }
                 />
             </View>
         )
@@ -135,5 +265,13 @@ const styles = {
         fontSize: 18,
         width: 60,
         color: '#333'
+    },
+    loadingMore: {
+        marginTop: 10,
+        marginBottom: 20,
+    },
+    loadingText: {
+        color: '#777',
+        textAlign: 'center'
     }
 }

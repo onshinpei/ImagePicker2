@@ -6,6 +6,7 @@ import {
     Text,
     StatusBar,
 } from 'react-native';
+import Intro from '../intro/intro';
 import ImagePicker from '../imagePicker/imagePicker';
 import List from '../list/list';
 import ScrollableTabView, {DefaultTabBar} from 'react-native-scrollable-tab-view';
@@ -25,7 +26,7 @@ export default class Tab extends Component {
             renderTabBar={() => <DefaultTabBar />}>
             <ImagePicker tabLabel='上传'/>
             <List tabLabel='列表'/>
-            <Text tabLabel='Tab #3'>project</Text>
+            <Intro tabLabel='介绍'/>
         </ScrollableTabView>
     }
 }
