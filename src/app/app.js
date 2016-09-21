@@ -21,7 +21,7 @@ export default class App extends Component {
         return (
              <Navigator
              initialRoute = {{name: 'list',component: Tab,}}
-             configureScene={(route, routeStack) =>Navigator.SceneConfigs.FloatFromBottom}
+             configureScene={(route, routeStack) =>Navigator.SceneConfigs.FloatFromRight}
              renderScene={(route, navigator)=>{
                      var Compenent = route.component;
                      return <Compenent {...route.params} navigator={navigator}/>

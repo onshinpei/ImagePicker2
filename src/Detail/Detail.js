@@ -12,10 +12,17 @@ import {
 } from 'react-native';
 
 export default class Detail extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {}
+    }
+    _backToList() {
+        this.props.navigator.pop();
+    }
     render() {
         return (
             <View style={styles.container}>
-                <Text style={styles.welcome}>
+                <Text style={styles.welcome} onPress={this._backToList.bind(this)}>
                     Welcome to React Native!
                 </Text>
                 <Text style={styles.instructions}>
