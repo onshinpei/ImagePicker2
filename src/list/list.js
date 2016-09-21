@@ -43,6 +43,9 @@ class Item extends Component {
                             source={{uri: row.thumb}}
                             style={styles.thumb}
                         />
+                        <View style={styles.play}>
+                            <Icon name={'ios-pause'} size={40} color="#900"/>
+                        </View>
                     </View>
                     <View style={styles.itemFooter}>
                         <View style={styles.handleBox}>
@@ -248,6 +251,18 @@ const styles = {
         width: width,
         height: width * 0.56,
     },
+    play: {
+        position: 'absolute',
+        right: 50,
+        bottom: 40,
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 40,
+        width: 50,
+        height: 50,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
     itemFooter: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -272,6 +287,6 @@ const styles = {
     },
     loadingText: {
         color: '#777',
-        textAlign: 'center'
+        textAlign: 'center',
     }
 }
