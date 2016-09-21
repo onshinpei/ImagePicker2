@@ -5,6 +5,7 @@ import {
     TouchableOpacity,
     Text,
     StatusBar,
+    Navigator
 } from 'react-native';
 import Intro from '../intro/intro';
 import ImagePicker from '../imagePicker/imagePicker';
@@ -25,7 +26,7 @@ export default class Tab extends Component {
             tabBarPosition = 'bottom'
             renderTabBar={() => <DefaultTabBar />}>
             <ImagePicker tabLabel='上传'/>
-            <List tabLabel='列表'/>
+            <List tabLabel='列表' navigator={this.props.navigator} />
             <Intro tabLabel='介绍'/>
         </ScrollableTabView>
     }

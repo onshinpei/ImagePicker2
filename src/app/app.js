@@ -6,9 +6,9 @@ import {
     PixelRatio,
     TouchableOpacity,
     Image,
-    Platform
+    Platform,
+    Navigator
 } from 'react-native';
-
 
 import Tab from '../tab/tab'
 
@@ -19,7 +19,15 @@ export default class App extends Component {
     }
     render() {
         return (
-            <Tab />
+             <Navigator
+             initialRoute = {{name: 'list',component: Tab,}}
+             configureScene={(route, routeStack) =>Navigator.SceneConfigs.FloatFromBottom}
+             renderScene={(route, navigator)=>{
+                     var Compenent = route.component;
+                     return <Compenent {...route.params} navigator={navigator}/>
+                 }
+             }
+             />
         )
     }
 }

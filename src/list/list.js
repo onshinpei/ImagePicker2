@@ -10,8 +10,10 @@ import {
     Image,
     Dimensions,
     ActivityIndicator,
-    RefreshControl
+    RefreshControl,
+    Navigator
 } from 'react-native';
+import Detail from '../Detail/Detail';
 import Icon from 'react-native-vector-icons/Ionicons';
 import request from '../common/request';
 import config from '../common/config';
@@ -35,7 +37,7 @@ class Item extends Component {
     render() {
         var row = this.state.row;
         return (
-            <TouchableHighlight>
+            <TouchableHighlight onPress={function() {alert()}}>
                 <View style={styles.item}>
                     <Text style={styles.title}>{row.title}</Text>
                     <View style={[styles.imgBox,styles.thumb]}>
@@ -79,7 +81,7 @@ export default class List extends Component {
     }
 
     renderRow(row) {
-        return <Item row = {row}/>
+        return <Item row={row} key={row._id} onSelect={() => this._loadPage(row)} />
     }
 
     componentDidMount() {
@@ -109,34 +111,34 @@ export default class List extends Component {
         })
             .then((data) => {
 
-                setTimeout(function() {
-                    if(data.success) {
-                        var items = cachedResults.items;
-                        if(page == 0) {
-                            items = data.data
-                        }else{
-                            items = items.concat(data.data);
-                            cachedResults.nextPage += 1;
-                        }
-                        cachedResults.items = items;
-                        cachedResults.total = data.total;
-                        if(page == 0) {
-                            _this.setState({
-                                isRefreshing: false,
-                                dataSource: _this.state.dataSource.cloneWithRows([]) //解决无法刷新
-                            })
-                            _this.setState({
-                                dataSource: _this.state.dataSource.cloneWithRows(cachedResults.items)
-                            })
-                        }else{
-                            _this.setState({
-                                isLoadingTail: false,
-                                dataSource: _this.state.dataSource.cloneWithRows(cachedResults.items)
-                            })
-                        }
-                    }
 
-                },1000)
+                if(data.success) {
+                    var items = cachedResults.items;
+                    if(page == 0) {
+                        items = data.data
+                    }else{
+                        items = items.concat(data.data);
+                        cachedResults.nextPage += 1;
+                    }
+                    cachedResults.items = items;
+                    cachedResults.total = data.total;
+                    if(page == 0) {
+                        _this.setState({
+                            isRefreshing: false,
+                            dataSource: _this.state.dataSource.cloneWithRows([]) //解决无法刷新
+                        })
+                        _this.setState({
+                            dataSource: _this.state.dataSource.cloneWithRows(cachedResults.items)
+                        })
+                    }else{
+                        _this.setState({
+                            isLoadingTail: false,
+                            dataSource: _this.state.dataSource.cloneWithRows(cachedResults.items)
+                        })
+                    }
+                }
+
+
 
             })
             .catch((error) => {
@@ -189,6 +191,14 @@ export default class List extends Component {
         }
         return <ActivityIndicator style={styles.loadingMore} size="large"
         />
+    }
+
+    _loadPage() {
+        return
+        this.props.navigator.push({
+            name: 'detail',
+            component: Detail
+        })
     }
 
     render() {
