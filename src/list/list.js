@@ -197,10 +197,13 @@ export default class List extends Component {
         />
     }
 
-    _loadPage() {
+    _loadPage(row) {
         this.props.navigator.push({
             name: 'detail',
-            component: Detail
+            component: Detail,
+            params: {
+                row: row
+            }
         })
     }
 
