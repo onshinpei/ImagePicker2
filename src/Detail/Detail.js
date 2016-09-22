@@ -9,7 +9,8 @@ import {
     StyleSheet,
     Text,
     View,
-    Dimensions
+    Dimensions,
+    ActivityIndicator
 } from 'react-native';
 import Video from 'react-native-video';
 
@@ -22,26 +23,31 @@ export default class Detail extends Component {
             rate: 1,
             muted: true, //静音
             resizeMode: 'contain', //充满情况
-            repeat: false
+            repeat: false,
+            videoReady: false
         }
     }
     _backToList() {
         this.props.navigator.pop();
     }
     _onLoadStart() {
-        console.log('load Start')
+
     }
 
     _onLoad() {
-        console.log('load')
+
     }
 
     _onProgress(data) {
-        console.log(data)
+        if(!this.state.videoReady) {
+            this.setState({
+                videoReady: true
+            })
+        }
     }
 
     _onEnd() {
-        console.log('end')
+
     }
 
     _onError(e) {
@@ -72,6 +78,13 @@ export default class Detail extends Component {
                            onError = {this._onError.bind(this)}
                            onEnd = {this._onEnd.bind(this)}
                     />
+
+                    {
+                        !this.state.videoReady && <ActivityIndicator
+                            color="#ee735c" style={styles.loading} size={50}
+                        />
+                    }
+
                 </View>
 
             </View>
@@ -98,12 +111,19 @@ const styles = StyleSheet.create({
     },
     videoBox: {
         width: width,
-        height: 360,
+        height: width/16*9,
         backgroundColor: '#000'
     },
     video: {
         width: width,
-        height: 360
+        height: width/16*9,
+    },
+    loading: {
+        position: 'absolute',
+        top: 0,
+        width: width,
+        height: width/16*9,
+        backgroundColor: 'transparent'
     }
 });
 
