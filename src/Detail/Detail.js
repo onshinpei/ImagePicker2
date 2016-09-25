@@ -8,6 +8,7 @@ import React, { Component } from 'react';
 import {
     StyleSheet,
     Text,
+    TextInput,
     View,
     Dimensions,
     ActivityIndicator,
@@ -15,19 +16,23 @@ import {
     TouchableOpacity,
     ScrollView,
     Image,
+    ListView,
+    Modal,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Video from 'react-native-video';
 import * as Progress from 'react-native-progress';
 import request from '../common/request';
 import config from '../common/config';
-
+import Button from 'react-native-button';
 
 const width = Dimensions.get('window').width;
 export default class Detail extends Component {
     constructor(props) {
         super(props);
+        const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
         this.state = {
+            data: this.props.row,
             rate: 1,
             muted: true, //静音
             resizeMode: 'contain', //充满情况
@@ -38,6 +43,10 @@ export default class Detail extends Component {
             currentTime: 0,
             playing: false,
             playEnd: false,
+            paused: true,
+            dataSource: ds.cloneWithRows([]),
+            modalVisible: false,
+            isSending: false,
         }
     }
     _backToList() {
@@ -52,13 +61,13 @@ export default class Detail extends Component {
     }
 
     _onProgress(data) {
+
+
         if(!this.state.videoReady) {
             this.setState({
                 videoReady: true
             })
         }
-
-
 
         var duration = data.playableDuration;
         var currentTime = data.currentTime;
@@ -90,6 +99,18 @@ export default class Detail extends Component {
 
     }
 
+    _play() {
+        this.setState({
+            paused: false,
+        })
+    }
+
+    _paused() {
+        this.setState({
+            paused: true,
+        })
+    }
+
     _replay() {
         this.refs.videoPlayer.seek(0);
         this.setState({
@@ -108,6 +129,116 @@ export default class Detail extends Component {
             id: 123,
             accessToken: '123a'
         }).then(
+            function(data) {
+                var comments = data.data;
+                if(comments && comments.length>0) {
+                    that.setState({
+                        comments: comments,
+                        dataSource: that.state.dataSource.cloneWithRows(comments)
+                    })
+                }
+            }
+        ).catch((error) => {
+            console.log(error)
+        })
+    }
+
+    _renderRow(row) {
+        var data = row;
+        return(
+            <View key={row._id} style={styles.replyBox}>
+                <View style={styles.replyAvatarBox}>
+                    <Image
+                        style={styles.replyAvatar}
+                        source={{uri: data.replyBy.avatar}}
+                    />
+                </View>
+
+                <View style={styles.reply}>
+                    <Text style={styles.replyNickname}>{data.replyBy.nickname}</Text>
+                    <Text style={styles.replyContent}>{data.content}</Text>
+                </View>
+            </View>
+        )
+    }
+
+    _focus() {
+        this._setModalVisible(true)
+    }
+
+    _setModalVisible(isVisible) {
+        this.setState({
+            modalVisible: isVisible
+        })
+    }
+
+
+    _blur() {
+
+    }
+
+    _closeModal() {
+        this.setState({
+            modalVisible: false
+        })
+    }
+
+    _submit() {
+        if(!this.state.content) {
+            return
+        }
+        if(this.state.isSending) {
+            alert('正在评论')
+        }
+        this.setState({
+            isSending: true
+        },function() {
+            var body = {
+                accessToken: 'abc',
+                creation: '1323',
+                content: this.state.content
+            }
+            var url = config.api.base + config.api.comment;
+            request.post(url,body)
+                .then(function(data) {
+                    if(data && data.success) {
+
+                    }
+                })
+        })
+    }
+
+    _renderHeader() {
+
+        var data = this.state.data;
+        return (
+            <View style={styles.listHeader}>
+                <View style={styles.infoBox}>
+                    <View style={styles.avatarBox}>
+                        <Image
+                            style={styles.avatar}
+                            source={{uri: data.author.avatar}}
+                        />
+                    </View>
+                    <View style={styles.descBox}>
+                        <Text style={styles.nickname}>{data.author.nickname}</Text>
+                        <Text style={styles.authorTitle}>{data.title}</Text>
+                    </View>
+                </View>
+                <View style={styles.commentBox}>
+                    <View style={styles.contentOut}>
+                        <TextInput
+                            placeholder="点击评论啊"
+                            style={styles.content}
+                            multiline={true}
+                            onFocus={this._focus.bind(this)}
+                        />
+                    </View>
+                </View>
+                <View style={styles.commentArea}>
+                    <Text style={styles.commentTitle}>精彩评论</Text>
+                </View>
+            </View>
 
         )
     }
@@ -131,7 +262,7 @@ export default class Detail extends Component {
                            source={{uri: data.video}}
                            style={styles.video}
                            volume={1}
-                           paused={true}
+                           paused={this.state.paused}
                            rate={this.state.rate}
                            muted={this.state.muted}
                            resizeMode={this.state.resizeMode}
@@ -156,6 +287,23 @@ export default class Detail extends Component {
                             </View>
                            :null
                     }
+
+                    {
+                        this.state.videoReady && this.state.paused?
+                            <TouchableOpacity style={styles.playBtn} activeOpacity={0.3}  onPress={this._play.bind(this)}>
+                                <View style={styles.play}>
+                                    <Icon name={'ios-play'} size={40} color="#900"/>
+                                </View>
+                            </TouchableOpacity>:null
+                    }
+
+                    {
+                        this.state.videoReady && !this.state.paused?
+                            <TouchableOpacity style={[styles.playBtn, styles.pausedBtn]} onPress={this._paused.bind(this)}>
+
+                            </TouchableOpacity>:null
+                    }
+
                     <Progress.Bar
                         borderRadius={0}
                         progress={this.state.videoProgress}
@@ -164,24 +312,53 @@ export default class Detail extends Component {
                         width={width}
                     />
                 </View>
-                <ScrollView
-                    enableEmptySections={true}
-                    showsVerticalScrollIndicator={false}
-                    style={styles.scrollView}>
-                    <View style={styles.infoBox}>
-                        <View style={styles.avatarBox}>
-                            <Image
-                                style={styles.avatar}
-                                source={{uri: data.author.avatar}}
-                            />
-                        </View>
 
-                        <View style={styles.descBox}>
-                            <Text style={styles.nickname}>{data.author.nickname}</Text>
-                            <Text style={styles.authorTitle}>{data.title}</Text>
+
+                <ListView
+                    dataSource={this.state.dataSource}
+                    renderRow={this._renderRow.bind(this)}
+                    enableEmptySections={true}
+                    renderHeader={this._renderHeader.bind(this)}
+
+                />
+
+                <Modal
+                    animationType={'fade'}
+                    visible={this.state.modalVisible}
+                    onRequestClose={()=>{
+                        this._setModalVisible(false)
+                    }}>
+                    <View style={styles.modalContainer}>
+                        <Icon onPress={this._closeModal.bind(this)}
+                        	size={50}
+                        	name={'ios-close'}
+                            style={styles.closeIcon}
+                        />
+                        <View style={styles.commentBox}>
+                            <View style={styles.contentOut}>
+                                <TextInput
+                                    placeholder="点击评论啊"
+                                    style={styles.content}
+                                    multiline={true}
+                                    onFocus={this._focus.bind(this)}
+                                    onBlur={this._blur.bind(this)}
+                                    defaultValue={this.state.content}
+                                    onChangeText={(text)=>{
+                                        this.setState({
+                                            content: text,
+                                        })
+                                    }}
+                                />
+                            </View>
                         </View>
+                        <Button
+                            onPress={this._submit.bind(this)}
+                            style={styles.submitBtn}>
+                            评论
+                        </Button>
                     </View>
-                </ScrollView>
+                </Modal>
+
             </View>
         );
     }
@@ -290,6 +467,115 @@ const styles = StyleSheet.create({
         marginTop: 8,
         fontSize: 12,
         color:'#666'
+    },
+
+
+    replyBox: {
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+        marginTop: 10,
+    },
+
+    replyAvatarBox: {
+        width: 40,
+        height: 40,
+        marginRight:10,
+        marginLeft: 10,
+        borderRadius: 40,
+        backgroundColor: '#eee'
+    },
+    replyAvatar: {
+        width: 40,
+        height: 40,
+        borderRadius: 40,
+    },
+
+    replyNickname: {
+        fontSize: 14,
+        color: '#666'
+    },
+    replyContent: {
+        fontSize: 12,
+        color: '#666',
+        marginTop: 4
+    },
+    playBtn: {
+        position: 'absolute',
+        left: 0,
+        top: 0,
+        width: width,
+        height: width/16*9,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+
+    pausedBtn: {
+
+    },
+
+
+    listHeader: {
+        width: width,
+        marginTop: 10,
+    },
+    commentBox: {
+        marginTop: 10,
+        marginBottom: 10,
+        padding: 8,
+        width: width
+    },
+    contentOut: {
+
+    },
+    content: {
+        color: '#333',
+        borderWidth: 1,
+        borderRadius: 4,
+        fontSize: 14,
+        borderColor: '#000',
+        backgroundColor: '#eee',
+        height: 60,
+        padding: 2,
+        textAlignVertical: 'top'
+    },
+    commentArea: {
+        paddingBottom: 6,
+        paddingLeft: 10,
+        paddingRight: 10,
+        paddingTop:10,
+        borderBottomWidth: 1,
+        borderBottomColor: '#aaa',
+    },
+    commentTitle: {
+        fontSize: 16,
+        color: 'blue'
+    },
+
+    modalContainer: {
+        flex: 1,
+        paddingTop: 45,
+        backgroundColor: '#fff',
+    },
+
+    closeIcon: {
+        alignSelf: 'center',
+        color: '#ee753c'
+    },
+
+    submitBtn: {
+        marginLeft: 10,
+        width: width -20,
+        padding: 10,
+        marginTop: 20,
+        marginBottom: 20,
+        backgroundColor: '#f77',
+        color: 'white',
+        borderWidth: 1,
+        borderColor: '#ee753c',
+        borderRadius: 4,
+        fontSize: 18
     }
+
+
 });
 

@@ -47,7 +47,7 @@ class Item extends Component {
                                     style={styles.thumb}
                                 />
                                 <View style={styles.play}>
-                                    <Icon name={'ios-pause'} size={40} color="#900"/>
+                                    <Icon name={'ios-play'} size={40} color="#900"/>
                                 </View>
                             </View>
                         </TouchableHighlight>
