@@ -12,6 +12,7 @@ import {
     TouchableOpacity,
     Dimensions,
     Image,
+    AsyncStorage,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
@@ -26,22 +27,44 @@ export default class Account extends Component {
         this.state = {
             user: user,
         }
+        console.log(this.state.user.avator)
     }
+    //读取user
+    componentDidMount() {
+        var that = this;
+        AsyncStorage.getItem('user')
+            .then((data) => {
+
+                var user;
+                if(data) {
+                    user = JSON.parse(data)
+                }
+                console.log(user)
+                if(user && user.accessToken) {
+                    that.setState({
+                        user: user
+                    })
+                }
+            })
+    }
+
     render() {
+        var user = this.state.user
         return (
             <View style={styles.container}>
                 <View style={styles.header}>
                     <Text style={styles.headerTitle}>我的账户</Text>
                 </View>
-
                 <TouchableOpacity style = {styles.avatarContainer}>
-                    <View style = {styles.avatarBox}>
-                        <Image
-                            source = {{uri: this.state.user.avator}}
-                            style = {styles.avator}
-                        />
+                    <View source = {{uri: user.avator}} style = {styles.avatarContainer}>
+                        <View style = {styles.avatarBox}>
+                            <Image
+                                source = {{uri: user.avator}}
+                                style = {styles.avator}
+                            />
+                        </View>
+                        <Text style = {styles.avatarTip}>更换头像</Text>
                     </View>
-                    <Text style = {styles.avatarTip}>更换头像</Text>
                 </TouchableOpacity>
 
                 <View style = {styles.avatarContainer}>
@@ -80,13 +103,14 @@ const styles = StyleSheet.create({
         height: 140,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#eee'
+
     },
     avatarBox: {
+        width: width,
         marginTop: 15,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#aaa'
+
     },
     plusIcon: {
         color: '#999',
@@ -95,7 +119,14 @@ const styles = StyleSheet.create({
     avator: {
         width: 60,
         height: 60,
-        backgroundColor: '#f00'
+        backgroundColor: 'red',
+        resizeMode: 'cover',
+        borderRadius: 30
+    },
+    avatarTip: {
+        color: '#aaa',
+        backgroundColor: 'transparent',
+        fontSize: 14,
     }
 });
 
