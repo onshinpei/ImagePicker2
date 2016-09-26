@@ -38,32 +38,32 @@ class Item extends Component {
         var row = this.state.row;
         return (
             <View>
-                    <View style={styles.item}>
-                        <Text style={styles.title}>{row.title}</Text>
-                        <TouchableHighlight onPress={this.props.onSelect.bind(this)}>
-                            <View style={[styles.imgBox,styles.thumb]}>
-                                <Image
-                                    source={{uri: row.thumb}}
-                                    style={styles.thumb}
-                                />
-                                <View style={styles.play}>
-                                    <Icon name={'ios-play'} size={40} color="#900"/>
-                                </View>
-                            </View>
-                        </TouchableHighlight>
-                        <View style={styles.itemFooter}>
-                            <View style={styles.handleBox}>
-                                <Icon name={'ios-thumbs-up-outline'} size={22} color="#900"/>
-                                <Text style={styles.handleText}>喜欢</Text>
-                            </View>
-
-                            <View style={styles.handleBox}>
-                                <Icon name={'ios-text-outline'} size={22} color="#900"/>
-                                <Text style={styles.handleText}>评论</Text>
+                <View style={styles.item}>
+                    <Text style={styles.title}>{row.title}</Text>
+                    <TouchableHighlight onPress={this.props.onSelect.bind(this)}>
+                        <View style={[styles.imgBox,styles.thumb]}>
+                            <Image
+                                source={{uri: row.thumb}}
+                                style={styles.thumb}
+                            />
+                            <View style={styles.play}>
+                                <Icon name={'ios-play'} size={40} color="#900"/>
                             </View>
                         </View>
+                    </TouchableHighlight>
+                    <View style={styles.itemFooter}>
+                        <View style={styles.handleBox}>
+                            <Icon name={'ios-thumbs-up-outline'} size={22} color="#900"/>
+                            <Text style={styles.handleText}>喜欢</Text>
+                        </View>
 
+                        <View style={styles.handleBox}>
+                            <Icon name={'ios-text-outline'} size={22} color="#900"/>
+                            <Text style={styles.handleText}>评论</Text>
+                        </View>
                     </View>
+
+                </View>
 
             </View>
 

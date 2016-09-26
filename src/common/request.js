@@ -16,12 +16,13 @@ request.get = function(url, params) {
 }
 
 request.post = function(url, body) {
-    let options = _._extends(config.header, {
+    let options = Object.assign(config.header, {
         body: JSON.stringify(body)
     })
     return fetch(url, options)
-        .then((response) => response.json)
+        .then((response) => response.json())
         .then((response) => Mock.mock(response))
 }
+
 
 module.exports = request;
