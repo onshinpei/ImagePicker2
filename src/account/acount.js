@@ -15,10 +15,19 @@ import {
     AsyncStorage,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import ImagePicker from 'react-native-image-picker';
 
 const width = Dimensions.get('window').width;
 
-
+const CLOUDINARY = {
+    'cloud_name': 'dikcmipba',
+    'api_key': '858444152876838',
+    'api_secret': '_mfJM5RV81DFjqJlJQBOzt5PaCs',
+    'base': 'http://res.cloudinary.com/dikcmipba',
+    image: 'https://api.cloudinary.com/v1_1/dikcmipba/image/upload',
+    video: 'https://api.cloudinary.com/v1_1/dikcmipba/video/upload',
+    audio: 'https://api.cloudinary.com/v1_1/dikcmipba/audio/upload',
+}
 
 export default class Account extends Component {
     constructor(props) {
@@ -27,7 +36,6 @@ export default class Account extends Component {
         this.state = {
             user: user,
         }
-        console.log(this.state.user.avator)
     }
     //读取user
     componentDidMount() {
@@ -48,6 +56,31 @@ export default class Account extends Component {
             })
     }
 
+    _changeAvatar() {
+        var that = this;
+        var options ={
+            title: '选择图片',
+            takePhotoButtonTitle: '点击拍摄',
+            chooseFromLibraryButtonTitle: '本地选择',
+            cancelButtonTitle: '取消',
+            noData: false,
+        }
+        ImagePicker.showImagePicker(options, (res)  => {
+            if(res.didCancel) {
+                return;
+            }
+
+            var avartarData = 'data:image/png;base64,' + res.data;
+            var user = that.state.user;
+            user.avatar = avartarData;
+            that.setState({
+                user: user
+            })
+
+
+        });
+    }
+
     render() {
         var user = this.state.user
         return (
@@ -55,16 +88,16 @@ export default class Account extends Component {
                 <View style={styles.header}>
                     <Text style={styles.headerTitle}>我的账户</Text>
                 </View>
-                <TouchableOpacity style = {styles.avatarContainer}>
-                    <View source = {{uri: user.avator}} style = {styles.avatarContainer}>
+                <TouchableOpacity onPress={this._changeAvatar.bind(this)} style = {styles.avatarContainer}>
+                    <Image source = {{uri: user.avatar}} style = {styles.avatarContainer}>
                         <View style = {styles.avatarBox}>
                             <Image
-                                source = {{uri: user.avator}}
-                                style = {styles.avator}
+                                source = {{uri: user.avatar}}
+                                style = {styles.avatar}
                             />
                         </View>
                         <Text style = {styles.avatarTip}>更换头像</Text>
-                    </View>
+                    </Image>
                 </TouchableOpacity>
 
                 <View style = {styles.avatarContainer}>
@@ -116,10 +149,9 @@ const styles = StyleSheet.create({
         color: '#999',
         fontSize: 60,
     },
-    avator: {
+    avatar: {
         width: 60,
         height: 60,
-        backgroundColor: 'red',
         resizeMode: 'cover',
         borderRadius: 30
     },
