@@ -92,7 +92,7 @@ export default class Login extends Component {
         var body = {
             phoneNumber: phoneNumber
         }
-        var signupUrl = config.api.base + config.api.signup;
+        var signupUrl = config.api.baseLocal + config.api.signup;
         request.post(signupUrl, body)
             .then((data) => {
                 if(data && data.success) {
@@ -107,7 +107,8 @@ export default class Login extends Component {
     }
 
     _submit() {
-        if(!this.state.phoneValid && !this.state.codeValid) {
+        if(!this.state.phoneValid || !this.state.codeValid) {
+            alert('请输入有效的验证码')
             return;
         }
         var that = this;
@@ -117,7 +118,8 @@ export default class Login extends Component {
             phoneNumber: phoneNumber,
             verifyCode: verifyCode,
         }
-        var signupUrl = config.api.base + config.api.verify;
+
+        var signupUrl = config.api.baseLocal + config.api.verify;
         request.post(signupUrl, body)
             .then((data) => {
                 if(data && data.success) {

@@ -1,6 +1,5 @@
 'use strict'
 import queryString from 'query-string';
-import _ from 'lodash';
 import config from './config'
 import Mock from 'mockjs'
 

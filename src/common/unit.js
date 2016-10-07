@@ -8,7 +8,7 @@ export default Unit = {
     },
 
     isVerifyCode(code) {
-        var myreg = /^\d{4}$/;
+        var myreg = /^\d{6}$/;
         var flag = myreg.test(code);
         return flag
     }

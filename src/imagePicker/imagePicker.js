@@ -7,9 +7,9 @@ import {
     PixelRatio,
     TouchableOpacity,
     Image,
-    Platform
+    Platform,
+    StatusBar,
 } from 'react-native';
-
 import ImagePicker from 'react-native-image-picker';
 
 export default class App extends Component {

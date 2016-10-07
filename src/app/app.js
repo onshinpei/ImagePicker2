@@ -54,18 +54,28 @@ export default class App extends Component {
                 })
             })
     }
-
+    _logout() {
+        var that = this;
+        AsyncStorage.removeItem('user')
+            .then(()=>{
+                that.setState({
+                    logined: false,
+                    user: {}
+                })
+            })
+    }
     render() {
+
         if(!this.state.logined) {
             return <Login afterLogin={this._afterLogin.bind(this)} />
         }
         return (
              <Navigator
                  initialRoute = {{name: 'list',component: Tab}}
-                 configureScene={(route, routeStack) =>Navigator.SceneConfigs.FloatFromRight}
+                 configureScene={(route, routeStack) =>Navigator.SceneConfigs.PushFromRight }
                  renderScene={(route, navigator)=>{
                          var Compenent = route.component;
-                         return <Compenent {...route.params} user = {this.state.user} navigator={navigator}/>
+                         return <Compenent {...route.params} user = {this.state.user} logout = {this._logout.bind(this)} navigator={navigator}/>
                      }
                  }
              />
