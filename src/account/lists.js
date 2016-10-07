@@ -17,7 +17,6 @@ import Icon from 'react-native-vector-icons/Ionicons';
 export default class Lists extends Component {
     constructor(props) {
         super(props);
-        alert(this.props.rederHeaderFn)
         var lists = this.props.rows;
         var ds = new ListView.DataSource({rowHasChanged: (r1, r2)=> r1 != r2});
         this.state = {
@@ -43,14 +42,18 @@ export default class Lists extends Component {
         )
     }
     render() {
-        var rederHeaderFn = this.props.rederHeaderFn?this.props.rederHeaderFn:null;
+        //配置listView渲染配置
+
+        var listsRenderOptions = this.props.listsRenderOptions? this.props.listsRenderOptions : {};
+        var hasBorderBottom = listsRenderOptions.removeBorderBottom? false: true;
+        var hasBorderTop = listsRenderOptions.removeBorderTop? false: true;
         return (
-            <View style = {[styles.listsBox,commonStyle.borderBottom, commonStyle.borderTop]}>
+            <View style = {[styles.listsBox,hasBorderBottom?commonStyle.borderBottom:null, hasBorderTop?commonStyle.borderTop:null]}>
                 <ListView
                     dataSource={this.state.dataSource}
                     enableEmptySections={true}
                     renderRow={this._renderRow.bind(this)}
-                    renderHeader = {rederHeaderFn}
+                    renderHeader = {listsRenderOptions.rederHeaderFn?listsRenderOptions.rederHeaderFn:null}
                 />
             </View>
         )

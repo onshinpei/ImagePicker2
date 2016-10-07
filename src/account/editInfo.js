@@ -49,6 +49,17 @@ export default class EditInfo extends Component {
             user: user,
             oneLists: oneLists,
             modalVisible: false,
+            listsRenderOptions : {
+                rederHeaderFn: function() {
+                    return (
+                        <View>
+                            <Text>基本设置</Text>
+                        </View>
+                    )
+                },
+                removeBorderTop: true,
+            }
+
         }
     }
 
@@ -62,12 +73,9 @@ export default class EditInfo extends Component {
 
     }
     _renderHeaderA() {
-        return (
-            <View>
-                <Text>常规设置</Text>
-            </View>
-        )
+
     }
+
     render() {
         var title = this.props.title;
         return (
@@ -79,7 +87,7 @@ export default class EditInfo extends Component {
                     </TouchableOpacity>
                     <Text numberOfLines={1} style={styles.headerTitle}>{title}</Text>
                 </View>
-                <Lists rederHeaderFn = {this._renderHeaderA.bind(this)} rows = {this.state.oneLists} user = {this.state.user} toListInfo = {this._toListInfo.bind(this)}/>
+                <Lists listsRenderOptions = {this.state.listsRenderOptions} rows = {this.state.oneLists} user = {this.state.user} toListInfo = {this._toListInfo.bind(this)}/>
 
 
                 <Modal
