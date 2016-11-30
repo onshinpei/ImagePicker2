@@ -98,7 +98,7 @@ android {
     }
 	signingConfigs { 
 		release { 
-			storeFile file('my-release-key.keystore') 
+			storeFile file('./my-release-key.keystore') 
 			storePassword 'wfung666' 
 			keyAlias 'my-key-alias'
 			keyPassword 'wfung666'

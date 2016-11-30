@@ -17,7 +17,7 @@ import Button from 'react-native-button';
 import request from '../common/request';
 import config from '../common/config';
 import Unit from '../common/unit'
-import {CountDownText} from 'react-native-sk-countdown'
+//import {CountDownText} from 'react-native-sk-countdown'
 export default class Login extends Component {
     constructor(props) {
         super(props);
@@ -93,6 +93,7 @@ export default class Login extends Component {
             phoneNumber: phoneNumber
         }
         var signupUrl = config.api.baseLocal + config.api.signup;
+        that._showVerifyCode()
         request.post(signupUrl, body)
             .then((data) => {
                 if(data && data.success) {
@@ -149,6 +150,7 @@ export default class Login extends Component {
                         autoCaptialize={'none'}
                         autoCorrect={false}
                         keyboardType={'numeric'}
+                        underlineColorAndroid={"transparent"}
                         style={styles.inputField}
                         onChangeText={this._onChangeText.bind(this)}
                     />
@@ -161,22 +163,13 @@ export default class Login extends Component {
                                     autoCorrect={false}
                                     keyboardType={'numeric'}
                                     style={styles.inputField}
+                                    underlineColorAndroid={"transparent"}
                                     onChangeText={this._onChangeVerifyCode.bind(this)}
                                 />
-                                {
-                                    <CountDownText
-                                    countType='seconds' // 计时类型：seconds / date
-                                    auto={false} // 自动开始
-                                    afterEnd={() => {this._countingDone.bind(this)}} // 结束回调
-                                    timeLeft={60} // 正向计时 时间起点为0秒
-                                    step={-1} // 计时步长，以秒为单位，正数则为正计时，负数为倒计时
-                                    startText='获取验证码' // 开始的文本
-                                    endText='获取验证码' // 结束的文本
-                                    intervalText={(sec) => sec + '秒重新获取'} // 定时的文本回调
-                                    style={styles.countBtn}
-                                    />
-                                }
-
+                                <Button
+                                    style={styles.countBtn}>
+                                    获取验证码
+                                </Button>
                             </View>
                             :null
                     }
@@ -222,6 +215,7 @@ const styles = StyleSheet.create({
         color: '#666',
         fontSize: 16,
         backgroundColor: '#fff',
+        borderWidth: 0,
         borderRadius: 4,
     },
     btnContainer: {

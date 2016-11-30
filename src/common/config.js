@@ -8,7 +8,7 @@ module.exports = {
         },
     },
     api: {
-        baseLocal: 'http://192.168.1.107:1234',
+        baseLocal: 'https://sunews.herokuapp.com',
         base: 'http://rap.taobao.org/mockjs/7661',
         creations: '/api/creations',
         comment: '/api/comments',

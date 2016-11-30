@@ -11,9 +11,9 @@ import {
     AsyncStorage,
 } from 'react-native';
 
-import Tab from '../tab/tab'
-import Login from '../account/login'
-
+import Tab from '../tab/tab';
+import Login from '../account/login';
+import LaunchImage from '../LaunchImage/LaunchImage';
 export default class App extends Component {
     constructor(props) {
         super(props);
@@ -65,7 +65,7 @@ export default class App extends Component {
             })
     }
     render() {
-
+        //return <LaunchImage />
         if(!this.state.logined) {
             return <Login afterLogin={this._afterLogin.bind(this)} />
         }
